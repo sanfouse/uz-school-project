@@ -6,6 +6,21 @@ import api
 
 from typing import Dict, Any, List
 
+example_json = """
+{
+  "profi_login": "string",
+  "profi_password": "string",
+  "accept_text": "string",
+  "accept_price": "string",
+  "accept_newbie": "True",
+  "accept": "True",
+  "proxy_host": "string",
+  "proxy_user": "string",
+  "proxy_password": "string",
+  "proxy_port": "string"
+}
+"""
+
 st.set_page_config(page_title="Scrapers Frontend", layout="wide", page_icon="🕷️")
 
 if "show_logs_for" not in st.session_state:
@@ -34,7 +49,7 @@ with st.sidebar:
         st.error(h["error"])
     st.caption(f"BASE_URL: `{api.BASE_URL}`")
 
-st.header("Запуск скраппера")
+st.header("Запуск скрапера")
 with st.form("start_form", clear_on_submit=False):
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -46,8 +61,8 @@ with st.form("start_form", clear_on_submit=False):
     with col2:
         params_text = st.text_area(
             "Параметры (JSON)",
-            value='{\n  "url": "https://example.com",\n  "depth": 1\n}',
-            height=140,
+            value=example_json,
+            height=250,
         )
     submitted = st.form_submit_button("Старт", use_container_width=True)
     if submitted:
