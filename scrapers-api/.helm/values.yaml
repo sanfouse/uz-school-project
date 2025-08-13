@@ -1,0 +1,25 @@
+apiService:
+  image: scrapers-api
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  resources:
+    requests:
+      cpu: "0.2"
+      memory: "256Mi"
+    limits:
+      cpu: "0.2"
+      memory: "256Mi"
+  port: 8000
+
+secrets:
+  RABBITMQ_HOST: "my-release-rabbitmq"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: "user"
+  RABBITMQ_PASSWORD: "buQcZ2hcVYK4yD2h"
+  RABBITMQ_QUEUE: "scrapers"
+
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_PASSWORD: "TVL9eZzcXs"
+

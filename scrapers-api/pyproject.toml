@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["sanfit <sanfit@vk.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+kubernetes = "^33.1.0"
+faststream = {extras = ["rabbit"], version = "^0.5.48"}
+redis = "^6.4.0"
+fastapi = "^0.116.1"
+uvicorn = "^0.35.0"
+pydantic-settings = "^2.10.1"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

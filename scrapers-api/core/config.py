@@ -1,0 +1,25 @@
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+    redis_host: str = "redis-master"
+    redis_port: int = 6379
+    redis_db: int = 0
+    redis_password: str = "TVL9eZzcXs"
+
+    rabbitmq_host: str = "my-release-rabbitmq"
+    rabbitmq_port: int = 5672
+    rabbitmq_user: str = "user"
+    rabbitmq_password: str = "buQcZ2hcVYK4yD2h"
+    rabbitmq_queue: str = "scrapers"
+
+    namespace: str = "default"
+    k8s_timeout: int = 60
+    k8s_labels: dict = {"scraper": "true"}
+
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+
+
+settings = Settings()

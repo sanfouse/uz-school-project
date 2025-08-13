@@ -1,0 +1,5 @@
+apiVersion: v2
+name: scrapers-api
+description: A Helm chart for local development of api-service, Redis, and RabbitMQ
+version: 0.1.0
+appVersion: "1.0"
