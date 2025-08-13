@@ -2,6 +2,8 @@ from pydantic import BaseModel
 
 
 class ScraperConfig(BaseModel):
+    job_id: str
+
     profi_login: str
     profi_password: str
 

@@ -21,6 +21,10 @@ build:
     context: notification-bot
     docker:
       dockerfile: Dockerfile
+  - image: frontend
+    context: frontend
+    docker:
+      dockerfile: Dockerfile
 
 deploy:
   helm:
@@ -37,6 +41,12 @@ deploy:
       createNamespace: true
       valuesFiles:
         - notification-bot/.helm/values.yaml
+    - name: frontend
+      chartPath: frontend/.helm
+      namespace: default
+      createNamespace: true
+      valuesFiles:
+        - frontend/.helm/values.yaml
 
 portForward:
 - resourceType: service
@@ -44,3 +54,9 @@ portForward:
   namespace: default
   port: 80
   localPort: 8000
+
+- resourceType: service
+  resourceName: frontend
+  namespace: default
+  port: 8501
+  localPort: 8501

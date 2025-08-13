@@ -9,7 +9,7 @@ router = APIRouter(tags=["jobs"])
 
 @router.delete("/stop-scraper/{job_id}")
 async def stop_scraper(job_id: str):
-    job_name = f"profi-scraper-job-{job_id}"
+    job_name = job_id
     try:
         delete_job(job_name)
         return response_ok(

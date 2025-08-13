@@ -11,7 +11,7 @@ router = APIRouter(tags=["scrapers"])
 
 @router.post("/start-scraper")
 async def start_scraper(config: ScraperConfig):
-    job_id = str(uuid.uuid4())
+    job_id = config.job_id
     try:
         await save_scraper_config(job_id, config.model_dump())
         env_vars = make_env_vars(job_id, config)

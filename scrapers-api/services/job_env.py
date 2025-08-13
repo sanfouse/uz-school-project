@@ -14,7 +14,7 @@ def make_env_vars(job_id: str, config: ScraperConfig) -> list[dict]:
         "RABBITMQ_PASSWORD": settings.rabbitmq_password,
         "RABBITMQ_QUEUE": settings.rabbitmq_queue,
         "HEADLESS": "True",
-        "LOG_LEVEL": "DEBUG",
+        "LOG_LEVEL": "INFO",
         "JOB_ID": job_id,
     }
 

@@ -27,7 +27,7 @@ async def process_orders(page: Page):
 
 async def _validate_orders(orders: list[Order]):
     if not orders:
-        logger.debug(f"{settings.profi_login}: No containers found")
+        logger.info(f"{settings.profi_login}: No containers found")
         return []
 
     viewed_orders = await client.get_viewed_orders()

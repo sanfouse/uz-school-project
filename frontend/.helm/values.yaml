@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: frontend
+  tag: dev
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8501
+
+resources:
+  requests:
+    cpu: 0.1
+    memory: 128Mi
+  limits:
+    cpu: 0.2
+    memory: 256Mi
+
+secrets:
+  SCRAPERS_API_BASE: "http://scrapers-api-service"
