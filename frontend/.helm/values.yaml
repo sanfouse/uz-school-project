@@ -11,7 +11,7 @@ service:
 
 ingress:
   enabled: true
-  host: frontend.local
+  host: ""  # Пустой хост - будет работать с любым IP
 
 resources:
   requests:

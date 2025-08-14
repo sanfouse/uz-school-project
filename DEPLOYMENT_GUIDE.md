@@ -89,6 +89,44 @@ cd uz-school-project
 skaffold run
 ```
 
+## 🌐 Доступ к приложению
+
+### Вариант 1: Без домена (по IP)
+
+После развертывания:
+
+```bash
+# Получаем внешний IP
+kubectl get service -n ingress-nginx ingress-nginx-controller
+
+# Открываем в браузере
+http://<EXTERNAL-IP>
+```
+
+### Вариант 2: С доменом
+
+1. **Получаем внешний IP:**
+   ```bash
+   kubectl get service -n ingress-nginx ingress-nginx-controller
+   ```
+
+2. **Настраиваем DNS:**
+   ```bash
+   # Добавляем A-запись
+   your-domain.com -> <EXTERNAL-IP>
+   ```
+
+3. **Обновляем values.yaml:**
+   ```yaml
+   ingress:
+     host: your-domain.com
+   ```
+
+4. **Перезапускаем:**
+   ```bash
+   skaffold run
+   ```
+
 ## 🔧 Настройка для продакшена
 
 ### 1. Создаем production values
@@ -125,37 +163,6 @@ EOF
 
 ```bash
 skaffold run -f skaffold-prod.yaml
-```
-
-## 🌐 Настройка домена
-
-### 1. Получаем внешний IP
-
-```bash
-# Получаем IP Ingress Controller
-kubectl get service -n ingress-nginx ingress-nginx-controller
-
-# Или для LoadBalancer
-kubectl get service -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-```
-
-### 2. Настраиваем DNS
-
-```bash
-# Добавляем A-запись
-# your-domain.com -> <EXTERNAL-IP>
-
-# Проверяем
-nslookup your-domain.com
-```
-
-### 3. Обновляем values.yaml
-
-```yaml
-# frontend/.helm/values.yaml
-ingress:
-  enabled: true
-  host: your-domain.com  # Ваш домен
 ```
 
 ## 📊 Мониторинг и логи

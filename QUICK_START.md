@@ -24,11 +24,14 @@ az aks get-credentials --resource-group scraper-rg --name scraper-cluster
 ./deploy-cloud.sh
 ```
 
-### 3. Настройте домен (опционально)
+### 3. Получите доступ (без домена)
 
 ```bash
-./create-prod-config.sh
-skaffold run -f skaffold-prod.yaml
+# Получаем IP и настраиваем доступ
+./get-ip-access.sh
+
+# Или вручную
+kubectl get service -n ingress-nginx ingress-nginx-controller
 ```
 
 ## 🎯 Что получите
@@ -40,7 +43,7 @@ skaffold run -f skaffold-prod.yaml
 
 ## 📱 Доступ к приложению
 
-После развертывания:
+### Без домена (по IP):
 
 1. **Получите внешний IP:**
    ```bash
@@ -51,6 +54,22 @@ skaffold run -f skaffold-prod.yaml
    ```
    http://<EXTERNAL-IP>
    ```
+
+### Альтернативные способы:
+
+```bash
+# Port-forward для Ingress Controller
+kubectl port-forward -n ingress-nginx service/ingress-nginx-controller 80:80
+# Затем: http://localhost
+
+# Port-forward для frontend
+kubectl port-forward service/frontend 8501:8501
+# Затем: http://localhost:8501
+
+# Через Skaffold
+skaffold dev
+# Затем: http://localhost:8501
+```
 
 ## 🔧 Полезные команды
 
