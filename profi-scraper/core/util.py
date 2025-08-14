@@ -1,4 +1,6 @@
 import random
+import json
+import os
 import asyncio
 
 from core.broker import send_message
@@ -50,3 +52,15 @@ async def sleep_random_time():
     duration = random.randint(settings.page_refresh_min, settings.page_refresh_max)
     logger.debug(f"Sleeping {duration} seconds")
     await asyncio.sleep(duration)
+
+
+def _load_words() -> list[str]:
+    try:
+        if os.path.exists("/app/config/words.json"):
+            with open("/app/config/words.json") as f:
+                words = json.load(f)
+                return words if isinstance(words, list) else []
+        else:
+            return []
+    except (FileNotFoundError, json.JSONDecodeError, Exception):
+        return []

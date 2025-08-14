@@ -19,3 +19,5 @@ class ScraperConfig(BaseModel):
     proxy_user: str | None = None
     proxy_password: str | None = None
     proxy_port: str | None = None
+
+    words: list[str] = []

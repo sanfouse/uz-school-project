@@ -6,8 +6,7 @@ import api
 
 from typing import Dict, Any, List
 
-example_json = """
-{
+example_json = """{
   "profi_login": "string",
   "profi_password": "string",
   "accept_text": "string",
@@ -56,25 +55,35 @@ with st.form("start_form", clear_on_submit=False):
         job_name = st.text_input(
             "Имя job",
             placeholder="my-scraper",
-            help="Произвольный идентификатор задачи",
+            help="Произвольный идентификатор задачи"
         )
     with col2:
-        params_text = st.text_area(
-            "Параметры (JSON)",
-            value=example_json,
-            height=250,
+        words_input = st.text_area(
+            "Список слов (по одному в строке)",
+            height=140,
+            placeholder="слово1\nслово2\nслово3"
         )
+
+    extra_params_text = st.text_area(
+        "Параметры (JSON)",
+        value=example_json,
+        height=250,
+    )
+
     submitted = st.form_submit_button("Старт", use_container_width=True)
+
     if submitted:
         try:
-            params = json.loads(params_text) if params_text.strip() else {}
+            extra_params = json.loads(extra_params_text) if extra_params_text.strip() else {}
         except json.JSONDecodeError as e:
             st.error(f"Некорректный JSON: {e}")
         else:
             if not job_name.strip():
                 st.warning("Укажи имя job.")
             else:
-                res = api.start_scraper(job_name.strip(), params)
+                words_list = [w.strip() for w in words_input.splitlines() if w.strip()]
+                extra_params["words"] = words_list  # добавляем список слов в параметры
+                res = api.start_scraper(job_name.strip(), extra_params)
                 if res["ok"]:
                     st.success(f"Запущено: {res['data']}")
                 else:

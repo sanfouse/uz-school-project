@@ -1,3 +1,4 @@
+import json
 from core.config import settings
 from models.scraper_config import ScraperConfig
 
@@ -20,5 +21,12 @@ def make_env_vars(job_id: str, config: ScraperConfig) -> list[dict]:
 
     scraper_env = config.model_dump(exclude_none=True)
     scraper_env = {k.upper(): v for k, v in scraper_env.items()}
+    
+    # Handle the words field specially - convert list to JSON string
+    if "WORDS" in scraper_env:
+        if scraper_env["WORDS"]:  # Only convert if the list is not empty
+            scraper_env["WORDS"] = json.dumps(scraper_env["WORDS"], ensure_ascii=False)
+        else:
+            scraper_env["WORDS"] = "[]"  # Empty list as JSON string
 
     return [{"name": k, "value": v} for k, v in {**base_env, **scraper_env}.items()]

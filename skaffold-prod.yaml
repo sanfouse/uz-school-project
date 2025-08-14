@@ -1,0 +1,52 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: api-app-production
+build:
+  local:
+    push: false
+  tagPolicy:
+    customTemplate:
+      template: "latest"
+  artifacts:
+  - image: scrapers-api
+    context: scrapers-api
+    docker:
+      dockerfile: Dockerfile
+  - image: profi-scraper
+    context: profi-scraper
+    docker:
+      dockerfile: Dockerfile
+  - image: notification-bot
+    context: notification-bot
+    docker:
+      dockerfile: Dockerfile
+  - image: frontend
+    context: frontend
+    docker:
+      dockerfile: Dockerfile
+
+deploy:
+  helm:
+    releases:
+    - name: scrapers-api
+      chartPath: scrapers-api/.helm
+      namespace: default
+      createNamespace: true
+      valuesFiles:
+        - scrapers-api/.helm/prod-values.yaml
+    - name: notification-bot
+      chartPath: notification-bot/.helm
+      namespace: default
+      createNamespace: true
+      valuesFiles:
+        - notification-bot/.helm/prod-values.yaml
+    - name: frontend
+      chartPath: frontend/.helm
+      namespace: default
+      createNamespace: true
+      valuesFiles:
+        - frontend/.helm/prod-values.yaml
+
+# Production настройки
+portForward: []  # Отключаем port-forward для продакшена

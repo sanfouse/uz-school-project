@@ -21,6 +21,7 @@ async def start_scraper(config: ScraperConfig):
             container_name=f"profi-scraper-{config.profi_login.lower() or 'default'}",
             image="profi-scraper:latest",
             env_vars=env_vars,
+            words=config.words,  # Pass the words parameter to create the ConfigMap
         )
 
         return response_ok(

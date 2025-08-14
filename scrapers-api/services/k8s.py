@@ -1,8 +1,10 @@
+import json
 import logging
 import os
+import uuid
 
 from kubernetes import client, config
-from kubernetes.client import V1Job, ApiException, V1DeleteOptions
+from kubernetes.client import V1Job, ApiException, V1DeleteOptions, V1Volume, V1VolumeMount, V1ConfigMapVolumeSource
 
 log = logging.getLogger(__name__)
 
@@ -38,8 +40,38 @@ def create_job(
     env_vars: list[dict[str, str]],
     cpu_limit: str = "1",
     mem_limit: str = "1024Mi",
+    words: list[str] | None = None,  # новый параметр
 ) -> V1Job:
     log.info(f"Creating job '{job_name}' using image '{image}'...")
+
+    volumes = []
+    volume_mounts = []
+
+    if words:
+        config_map_name = f"{job_name}-words-{uuid.uuid4().hex[:6]}"
+
+        core_client.create_namespaced_config_map(
+            namespace=settings.namespace,
+            body=client.V1ConfigMap(
+                metadata=client.V1ObjectMeta(name=config_map_name),
+                data={"words.json": json.dumps(words, ensure_ascii=False)},
+            ),
+        )
+
+        volumes.append(
+            V1Volume(
+                name="words-volume",
+                config_map=V1ConfigMapVolumeSource(name=config_map_name),
+            )
+        )
+        volume_mounts.append(
+            V1VolumeMount(
+                name="words-volume",
+                mount_path="/app/config",
+                read_only=True,
+            )
+        )
+
     return batch_client.create_namespaced_job(
         namespace=settings.namespace,
         body=client.V1Job(
@@ -50,11 +82,17 @@ def create_job(
                 template=client.V1PodTemplateSpec(
                     metadata=client.V1ObjectMeta(labels=settings.labels),
                     spec=_pod_spec(
-                        container_name, image, env_vars, cpu_limit, mem_limit
+                        container_name,
+                        image,
+                        env_vars,
+                        cpu_limit,
+                        mem_limit,
+                        volumes=volumes,
+                        volume_mounts=volume_mounts,
                     ),
                 ),
                 backoff_limit=3,
-                ttl_seconds_after_finished=86400,  # auto-delete after 1 day
+                ttl_seconds_after_finished=86400,
             ),
         ),
         _request_timeout=settings.timeout,
@@ -133,6 +171,8 @@ def _pod_spec(
     env_vars: list[dict[str, str]],
     cpu_limit: str,
     mem_limit: str,
+    volumes: list[V1Volume] | None = None,
+    volume_mounts: list[V1VolumeMount] | None = None,
 ) -> client.V1PodSpec:
     return client.V1PodSpec(
         security_context=client.V1PodSecurityContext(
@@ -155,7 +195,9 @@ def _pod_spec(
                     requests={"cpu": "0.5", "memory": "512Mi"},
                     limits={"cpu": cpu_limit, "memory": mem_limit},
                 ),
+                volume_mounts=volume_mounts or [],
             )
         ],
+        volumes=volumes or [],
         restart_policy="Never",
     )

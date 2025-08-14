@@ -9,6 +9,10 @@ service:
   type: ClusterIP
   port: 8501
 
+ingress:
+  enabled: true
+  host: frontend.local
+
 resources:
   requests:
     cpu: 0.1
