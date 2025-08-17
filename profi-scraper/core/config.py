@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     clear_history_interval: int = 3600
+    
     page_refresh_min: int = 5
     page_refresh_max: int = 15
     log_level: str | None = "INFO"

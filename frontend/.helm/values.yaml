@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: frontend
-  tag: dev
-  pullPolicy: IfNotPresent
+  repository: aadbccd8-cute-cygnus.registry.twcstorage.ru/frontend
+  tag: latest
+  pullPolicy: Always
 
 service:
   type: ClusterIP

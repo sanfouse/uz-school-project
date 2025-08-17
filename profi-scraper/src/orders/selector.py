@@ -6,6 +6,12 @@ class Selector:
     def __init__(self, html: str):
         self.soup: BeautifulSoup = BeautifulSoup(html, "html.parser")
 
+    def _safe_text(self, element, default=""):
+        """Безопасно извлекает текст из элемента"""
+        if element is None:
+            return default
+        return element.text.strip() if element.text else default
+
     @property
     def containers(self):
         return self.soup.select(".OrderSnippetContainerStyles__Container-sc-1qf4h1o-0")
@@ -37,32 +43,65 @@ class Selector:
 
         return dict(created_at=created_at, reviews=len(reviews))
 
+    @property
+    def unviewed_messages(self) -> int | None:
+        message_count = self.soup.select_one("div.global-badge.NavigationBarStyles__NavigationBarBadge-sc-qnnk0q-4.WYxvL")
+        if message_count:
+            int_message_count = int(message_count.text)
+            return int_message_count if int_message_count > 0 else None
+        return None
+
     def get_orders(self) -> list[Order]:
         orders = list()
         for container in self.containers:
-            href = container.select_one(".SnippetBodyStyles__Container-sc-tnih0-2")[
-                "href"
-            ]
-            order = Order(
-                id=container.select_one(".SnippetBodyStyles__Container-sc-tnih0-2")[
-                    "id"
-                ],
-                link=f"https://profi.ru{href}",
-                subject=container.select_one(
-                    ".SubjectAndPriceStyles__SubjectsText-sc-18v5hu8-1"
-                ).text.strip(),
-                description=container.select_one(
-                    ".SnippetBodyStyles__MainInfo-sc-tnih0-6"
-                ).text.strip(),
-                price=container.select_one(
-                    ".SubjectAndPriceStyles__PriceValue-sc-18v5hu8-5"
-                ).text.strip(),
-                time_info=container.select_one(
-                    ".Date__DateText-sc-e1f8oi-1"
-                ).text.strip(),
-                client_name=container.select_one(
-                    ".StatusAndClientInfoStyles__Name-sc-xp6j2r-9"
-                ).text.strip(),
-            )
-            orders.append(order)
+            try:
+                # Безопасно извлекаем href
+                href_element = container.select_one(".SnippetBodyStyles__Container-sc-tnih0-2")
+                if not href_element or not href_element.get("href"):
+                    continue
+                
+                href = href_element["href"]
+                
+                order_id = href_element.get("id", "")
+                
+                subject = self._safe_text(
+                    container.select_one(".SubjectAndPriceStyles__SubjectsText-sc-18v5hu8-1"),
+                    "Без темы"
+                )
+                
+                description = self._safe_text(
+                    container.select_one(".SnippetBodyStyles__MainInfo-sc-tnih0-6"),
+                    "Без описания"
+                )
+                
+                price = self._safe_text(
+                    container.select_one(".SubjectAndPriceStyles__PriceValue-sc-18v5hu8-5"),
+                    "Цена не указана"
+                )
+                
+                time_info = self._safe_text(
+                    container.select_one(".Date__DateText-sc-e1f8oi-1"),
+                    "Время не указано"
+                )
+
+                client_name = self._safe_text(
+                    container.select_one(".StatusAndClientInfoStyles__Name-sc-xp6j2r-9.ihShvN")
+                )
+                
+                order = Order(
+                    id=order_id,
+                    link=f"https://profi.ru{href}",
+                    subject=subject,
+                    description=description,
+                    price=price,
+                    time_info=time_info,
+                    client_name=client_name
+                )
+                orders.append(order)
+                
+            except Exception as e:
+                # Логируем ошибку и продолжаем
+                print(f"Ошибка при обработке заказа: {e}")
+                continue
+                
         return orders

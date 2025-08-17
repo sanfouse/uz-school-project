@@ -3,25 +3,24 @@ kind: Config
 metadata:
   name: api-app
 build:
-  local:
-    push: false
   tagPolicy:
-    customTemplate:
-      template: "latest"
+    sha256: {}
+  local:
+    push: true
   artifacts:
-  - image: scrapers-api
+  - image: aadbccd8-cute-cygnus.registry.twcstorage.ru/scrapers-api
     context: scrapers-api
     docker:
       dockerfile: Dockerfile
-  - image: profi-scraper
+  - image: aadbccd8-cute-cygnus.registry.twcstorage.ru/profi-scraper
     context: profi-scraper
     docker:
       dockerfile: Dockerfile
-  - image: notification-bot
+  - image: aadbccd8-cute-cygnus.registry.twcstorage.ru/notification-bot
     context: notification-bot
     docker:
       dockerfile: Dockerfile
-  - image: frontend
+  - image: aadbccd8-cute-cygnus.registry.twcstorage.ru/frontend
     context: frontend
     docker:
       dockerfile: Dockerfile
@@ -48,15 +47,4 @@ deploy:
       valuesFiles:
         - frontend/.helm/values.yaml
 
-portForward:
-- resourceType: service
-  resourceName: scrapers-api-service
-  namespace: default
-  port: 80
-  localPort: 8000
-
-- resourceType: service
-  resourceName: frontend
-  namespace: default
-  port: 8501
-  localPort: 8501
+portForward: []

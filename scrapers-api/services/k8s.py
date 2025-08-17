@@ -5,17 +5,9 @@ import uuid
 
 from kubernetes import client, config
 from kubernetes.client import V1Job, ApiException, V1DeleteOptions, V1Volume, V1VolumeMount, V1ConfigMapVolumeSource
+from core.config import settings
 
 log = logging.getLogger(__name__)
-
-
-class K8sSettings:
-    namespace: str = os.getenv("NAMESPACE", "default")
-    labels: dict[str, str] = {"scraper": "true"}
-    timeout: int = 60
-
-
-settings = K8sSettings()
 
 
 def _load_k8s_config() -> None:
@@ -43,7 +35,10 @@ def create_job(
     words: list[str] | None = None,  # новый параметр
 ) -> V1Job:
     log.info(f"Creating job '{job_name}' using image '{image}'...")
-
+    
+    # Используем настройки из конфига для образа
+    full_image = f"{settings.scraper_registry}/{image}" if not image.startswith(settings.scraper_registry) else image
+    
     volumes = []
     volume_mounts = []
 
@@ -64,11 +59,11 @@ def create_job(
                 config_map=V1ConfigMapVolumeSource(name=config_map_name),
             )
         )
+
         volume_mounts.append(
             V1VolumeMount(
                 name="words-volume",
                 mount_path="/app/config",
-                read_only=True,
             )
         )
 
@@ -77,13 +72,13 @@ def create_job(
         body=client.V1Job(
             api_version="batch/v1",
             kind="Job",
-            metadata=client.V1ObjectMeta(name=job_name, labels=settings.labels),
+            metadata=client.V1ObjectMeta(name=job_name, labels=settings.k8s_labels),
             spec=client.V1JobSpec(
                 template=client.V1PodTemplateSpec(
-                    metadata=client.V1ObjectMeta(labels=settings.labels),
+                    metadata=client.V1ObjectMeta(labels=settings.k8s_labels),
                     spec=_pod_spec(
                         container_name,
-                        image,
+                        full_image,  # Используем полный путь к образу
                         env_vars,
                         cpu_limit,
                         mem_limit,
@@ -92,16 +87,16 @@ def create_job(
                     ),
                 ),
                 backoff_limit=3,
-                ttl_seconds_after_finished=86400,
+                ttl_seconds_after_finished=86400,  # Автоматическое удаление через 24 часа после завершения
             ),
         ),
-        _request_timeout=settings.timeout,
+        _request_timeout=settings.k8s_timeout,
     )
 
 
 def list_jobs(prefix: str | None = None, status: str | None = None) -> list[V1Job]:
     jobs = batch_client.list_namespaced_job(
-        namespace=settings.namespace, label_selector="scraper=true"
+        namespace=settings.namespace, label_selector=f"scraper=true"
     ).items
 
     if prefix:
@@ -183,7 +178,7 @@ def _pod_spec(
             client.V1Container(
                 name=container_name,
                 image=image,
-                image_pull_policy="IfNotPresent",
+                image_pull_policy="Always",
                 env=env_vars,
                 security_context=client.V1SecurityContext(
                     allow_privilege_escalation=False,
@@ -192,7 +187,6 @@ def _pod_spec(
                     run_as_user=101,
                 ),
                 resources=client.V1ResourceRequirements(
-                    requests={"cpu": "0.5", "memory": "512Mi"},
                     limits={"cpu": cpu_limit, "memory": mem_limit},
                 ),
                 volume_mounts=volume_mounts or [],

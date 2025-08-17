@@ -14,7 +14,7 @@ MAX_CONCURRENT_PAGES = settings.mac_concurrent_pages
 
 @with_new_page
 async def _accept_order(page: PWPage, order: Order) -> bool:
-    accepted, reason = await page.accept_order(order.link)
+    accepted, reason = await page.accept_order(order.link, order.client_name)
     if accepted:
         await send_message(order.get_message(accepted=accepted))
     else:

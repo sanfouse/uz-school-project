@@ -55,7 +55,7 @@ class PWPage:
         self.logger.warning("No response limit content retrieved")
         return 0
 
-    async def accept_order(self, order_url) -> tuple[bool, str]:
+    async def accept_order(self, order_url, client_name: str | None = "") -> tuple[bool, str]:
         self.logger.info(f"Attempting to accept order at URL: {order_url}")
         accepted = False
         reason = ""
@@ -70,7 +70,9 @@ class PWPage:
                 await self._wait_order_details_page()
                 if await self.validate_client():
                     self.logger.debug("Client validated, filling order details")
-                    await self._fill_order_details_text(settings.accept_text)
+                    accept_text = settings.accept_text.replace("__name__", client_name)
+                    self.logger.debug(f"Accept text: {accept_text}")
+                    await self._fill_order_details_text(accept_text)
                     await self._fill_price_details_text(settings.accept_price)
                     self.logger.debug("Attempting to accept order")
                     accepted = await self._click_accept_order()
@@ -166,6 +168,8 @@ class PWPage:
             raise
 
     async def _fill_price_details_text(self, text: str | None = "") -> None:
+        if not text:
+            text = ""
         self.logger.debug(f"Filling price details with text: {text}")
         try:
             await self.page.fill(
@@ -208,6 +212,11 @@ class PWPage:
         selector = Selector(html)
         return selector.get_orders()
 
+    async def get_unviewed_messages(self) -> int | None:
+        html = await self.page.content()
+        selector = Selector(html)
+        return selector.unviewed_messages
+
     async def _wait_orders_in_page(self):
         self.logger.debug("Waiting for orders in page")
         try:
@@ -215,7 +224,7 @@ class PWPage:
                 ".OrderSnippetContainerStyles__Container-sc-1qf4h1o-0",
                 timeout=1 * 10000,
             )
-            self.logger.info("Orders found in page")
+            self.logger.debug("Orders found in page")
         except playwright.async_api.TimeoutError:
             self.logger.warning("Timeout waiting for orders in page")
             return

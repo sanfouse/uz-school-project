@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: notification-bot
-  pullPolicy: IfNotPresent
+  repository: aadbccd8-cute-cygnus.registry.twcstorage.ru/notification-bot
+  pullPolicy: Always
   tag: "latest"
 
 resources:
@@ -20,10 +20,10 @@ secrets:
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   REDIS_DB: "0"
-  REDIS_PASSWORD: "TVL9eZzcXs"
+  REDIS_PASSWORD: "7eyzTpb2%"
 
   RABBITMQ_HOST: "my-release-rabbitmq"
   RABBITMQ_PORT: "5672"
   RABBITMQ_USER: "user"
-  RABBITMQ_PASSWORD: "buQcZ2hcVYK4yD2h"
+  RABBITMQ_PASSWORD: "J8lqS07OcSLYvLGd"
   RABBITMQ_QUEUE: "scrapers"

@@ -4,19 +4,22 @@ metadata:
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app: app
+    app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.apiService.replicas }}
   selector:
     matchLabels:
-      app: app
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: app
+        app: {{ .Release.Name }}
     spec:
+      serviceAccountName: scrapers-api-sa
+      imagePullSecrets:
+        - name: regcred
       containers:
-      - name: app
+      - name: {{ .Release.Name }}
         image: {{ .Values.apiService.image }}
         imagePullPolicy: {{ .Values.apiService.imagePullPolicy }}
         ports:

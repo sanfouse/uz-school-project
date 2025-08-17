@@ -1,6 +1,6 @@
 apiService:
-  image: scrapers-api
-  imagePullPolicy: IfNotPresent
+  image: aadbccd8-cute-cygnus.registry.twcstorage.ru/scrapers-api
+  imagePullPolicy: Always
   replicas: 1
   resources:
     requests:
@@ -15,11 +15,14 @@ secrets:
   RABBITMQ_HOST: "my-release-rabbitmq"
   RABBITMQ_PORT: "5672"
   RABBITMQ_USER: "user"
-  RABBITMQ_PASSWORD: "buQcZ2hcVYK4yD2h"
+  RABBITMQ_PASSWORD: "J8lqS07OcSLYvLGd"
   RABBITMQ_QUEUE: "scrapers"
 
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   REDIS_DB: "0"
-  REDIS_PASSWORD: "TVL9eZzcXs"
+  REDIS_PASSWORD: "7eyzTpb2%"
+
+  SCRAPER_IMAGE: "profi-scraper:latest"
+  SCRAPER_REGISTRY: "aadbccd8-cute-cygnus.registry.twcstorage.ru"
 

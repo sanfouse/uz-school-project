@@ -162,8 +162,7 @@ if st.session_state.show_logs_for:
             i = 0
             while i < 10:
                 render_logs()
-                time.sleep(15)
+                time.sleep(5)
                 i += 1
-                st.caption("Обновление…")
         else:
             render_logs()

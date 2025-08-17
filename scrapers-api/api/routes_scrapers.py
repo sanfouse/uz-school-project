@@ -1,6 +1,7 @@
 import uuid
 from fastapi import APIRouter
 from core.redis_client import save_scraper_config
+from core.config import settings
 from models.scraper_config import ScraperConfig
 from services.job_env import make_env_vars
 from services.k8s import create_job
@@ -19,7 +20,7 @@ async def start_scraper(config: ScraperConfig):
         create_job(
             job_name=f"profi-scraper-job-{job_id}",
             container_name=f"profi-scraper-{config.profi_login.lower() or 'default'}",
-            image="profi-scraper:latest",
+            image=settings.scraper_image,  # Используем настройку из конфига
             env_vars=env_vars,
             words=config.words,  # Pass the words parameter to create the ConfigMap
         )
