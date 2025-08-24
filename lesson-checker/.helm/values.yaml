@@ -24,20 +24,20 @@ cronjob:
 
 # Переменные окружения
 env:
-  DATABASE_URL: "postgresql://user:password@postgres:5432/teachers_db"
-  RABBITMQ_URL: "amqp://user:password@rabbitmq:5672/"
   NOTIFICATION_QUEUE: "lesson_notifications"
 
 # Секреты
 secrets:
-  DATABASE_USER: "user"
-  DATABASE_PASSWORD: "password"
-  DATABASE_HOST: "postgres"
+  DATABASE_HOST: "192.168.0.9"
   DATABASE_PORT: "5432"
-  DATABASE_NAME: "teachers_db"
-  
-  RABBITMQ_USER: "user"
-  RABBITMQ_PASSWORD: "password"
-  RABBITMQ_HOST: "rabbitmq"
-  RABBITMQ_PORT: "5672"
+  DATABASE_USER: "gen_user"
+  DATABASE_PASSWORD: "dG^,+Rx3Waf,3w"
+  DATABASE_NAME: "default_db"
+
+  RABBIT_HOST: "my-release-rabbitmq"
+  RABBIT_PORT: "5672"
+  RABBIT_PASSWORD: "J8lqS07OcSLYvLGd"
+  RABBIT_USER: "user"
+  RABBIT_QUEUE: "scrapers"
+
 

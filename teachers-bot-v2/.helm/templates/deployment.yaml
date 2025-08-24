@@ -18,10 +18,11 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            {{- toYaml .Values.env | nindent 12 }}
+          envFrom:
+          - secretRef:
+              name: {{ .Release.Name }}-secret
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           # Bot doesn't have health endpoints, so we skip probes

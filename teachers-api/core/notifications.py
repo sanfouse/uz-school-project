@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 from faststream.rabbit import RabbitBroker
 from loguru import logger
+from core.config import settings
 
 
 class NotificationService:
@@ -32,9 +33,8 @@ class NotificationService:
             }
             
             await broker.publish(
-                message=json.dumps(message, default=str),
-                routing_key="teacher.notifications",
-                exchange="notifications"
+                json.dumps(message, default=str),
+                settings.RABBIT_QUEUE
             )
             
             logger.info(f"Notification sent: {event_type} for teacher {teacher_id}")

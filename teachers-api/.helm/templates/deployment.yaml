@@ -18,33 +18,23 @@ spec:
     spec:
       initContainers:
         - name: migration
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            {{- toYaml .Values.env | nindent 12 }}
+          envFrom:
+          - secretRef:
+              name: {{ .Release.Name }}-secret
           command: ["alembic", "upgrade", "head"]
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          env:
-            {{- toYaml .Values.env | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /docs
-              port: http
-            initialDelaySeconds: 60
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /docs
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 5
+          envFrom:
+          - secretRef:
+              name: {{ .Release.Name }}-secret
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

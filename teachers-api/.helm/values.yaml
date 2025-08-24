@@ -3,12 +3,12 @@ replicaCount: 1
 image:
   repository: aadbccd8-cute-cygnus.registry.twcstorage.ru/teachers-api
   pullPolicy: Always
-  tag: ""
+  tag: "latest"
 
 service:
   type: ClusterIP
   port: 80
-  targetPort: 8000
+  targetPort: 8080
 
 ingress:
   enabled: true
@@ -21,13 +21,24 @@ ingress:
           pathType: Prefix
   tls: []
 
-env:
-  - name: DATABASE_URL
-    value: "postgresql://user:password@postgres:5432/db"
-  - name: API_HOST
-    value: "0.0.0.0"
-  - name: API_PORT
-    value: "8000"
+secrets:
+  API_HOST: "0.0.0.0"
+  API_PORT: "8080"
+
+  DATABASE_HOST: "192.168.0.9"
+  DATABASE_PORT: "5432"
+  DATABASE_USER: "gen_user"
+  DATABASE_PASSWORD: "dG^,+Rx3Waf,3w"
+  DATABASE_NAME: "default_db"
+
+  RABBIT_USER: "user"
+  RABBIT_PASSWORD: "J8lqS07OcSLYvLGd"
+  RABBIT_HOST: "my-release-rabbitmq"
+  RABBIT_PORT: "5672"
+  RABBIT_QUEUE: "scrapers"
+
+  TINKOFF_TOKEN: "TBankSandboxToken"
+
 
 resources:
   limits:
@@ -40,7 +51,7 @@ resources:
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 2
   targetCPUUtilizationPercentage: 80
 
 nodeSelector: {}

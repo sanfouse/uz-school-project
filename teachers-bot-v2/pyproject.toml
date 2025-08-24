@@ -1,25 +1,21 @@
 [tool.poetry]
 name = "teachers-bot-v2"
-version = "2.0.0"
-description = "Modern Teachers Management Bot with Integrated Lesson Monitoring"
+version = "0.1.0"
+description = ""
 authors = ["sanfit <sanfit@vk.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+faststream = {extras = ["rabbit"], version = "^0.5.48"}
+httpx = "^0.28.1"
+apscheduler = "^3.11.0"
+loguru = "^0.7.3"
+python-multipart = "^0.0.20"
 aiogram = "^3.22.0"
 pydantic-settings = "^2.10.1"
 redis = "^6.4.0"
-apscheduler = "^3.10.4"
-httpx = "^0.28.1"
-faststream = {extras = ["rabbit"], version = "^0.5.48"}
-loguru = "^0.7.2"
-python-multipart = "^0.0.12"
 
-[tool.poetry.group.dev.dependencies]
-black = "^25.1.0"
-pytest = "^8.0.0"
-pytest-asyncio = "^0.25.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -3,26 +3,30 @@ replicaCount: 1
 image:
   repository: aadbccd8-cute-cygnus.registry.twcstorage.ru/teachers-bot-v2
   pullPolicy: Always
-  tag: ""
+  tag: "latest"
 
-env:
-  - name: BOT_TOKEN
-    value: "your-bot-token-here"
-  - name: TEACHERS_API_URL
-    value: "http://teachers-api"
-  - name: REDIS_HOST
-    value: "redis"
-  - name: REDIS_PORT
-    value: "6379"
-  - name: REDIS_DB
-    value: "0"
-  - name: RABBITMQ_URL
-    value: "amqp://guest:guest@rabbitmq:5672/"
+secrets:
+  TELEGRAM_BOT_TOKEN: "8275865108:AAEMw8lYu8HWBg0PYqOD99SMHALRSkxHxdM"
+
+  TEACHERS_API_URL: "http://teachers-api"
+  TEACHERS_API_PORT: "8080"
+
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_PASSWORD: "7eyzTpb2%"
+
+  RABBIT_USER: "user"
+  RABBIT_PASSWORD: "J8lqS07OcSLYvLGd"
+  RABBIT_HOST: "my-release-rabbitmq"
+  RABBIT_PORT: "5672"
+  RABBIT_QUEUE: "lesson_notifications"
+
 
 resources:
   limits:
     cpu: 200m
-    memory: 256Mi
+    memory: 512Mi
   requests:
     cpu: 100m
     memory: 128Mi

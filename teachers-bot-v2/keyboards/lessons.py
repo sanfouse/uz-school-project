@@ -20,7 +20,7 @@ class LessonKeyboards(NavigationMixin):
         return InlineKeyboardMarkup(inline_keyboard=buttons)
     
     @staticmethod
-    def get_lesson_detail_keyboard(lesson_id: int, status: str = "planned") -> InlineKeyboardMarkup:
+    def get_lesson_detail_keyboard(lesson_id: int, status: str = "planned", lesson_type: str = "regular") -> InlineKeyboardMarkup:
         buttons = []
         
         # Status-specific actions
@@ -35,10 +35,14 @@ class LessonKeyboards(NavigationMixin):
         # Common actions
         buttons.extend([
             [InlineKeyboardButton(text="✏️ Редактировать", callback_data=f"lesson:edit:{lesson_id}")],
-            [InlineKeyboardButton(text="👤 Студент", callback_data=f"lesson:student:{lesson_id}")],
-            [InlineKeyboardButton(text="💰 Счет", callback_data=f"lesson:invoice:{lesson_id}")],
-            [InlineKeyboardButton(text="🗑️ Удалить", callback_data=f"lesson:delete:{lesson_id}")]
+            [InlineKeyboardButton(text="👤 Студент", callback_data=f"lesson:student:{lesson_id}")]
         ])
+        
+        # Add invoice button only for non-trial lessons
+        if lesson_type != "trial":
+            buttons.append([InlineKeyboardButton(text="💰 Счет", callback_data=f"lesson:invoice:{lesson_id}")])
+        
+        buttons.append([InlineKeyboardButton(text="🗑️ Удалить", callback_data=f"lesson:delete:{lesson_id}")])
         
         buttons = NavigationMixin.add_navigation(buttons)
         return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -66,14 +70,17 @@ class LessonKeyboards(NavigationMixin):
         return InlineKeyboardMarkup(inline_keyboard=buttons)
     
     @staticmethod
-    def get_lesson_confirmation_keyboard(lesson_id: int) -> InlineKeyboardMarkup:
+    def get_lesson_confirmation_keyboard(lesson_id: int, lesson_type: str = "regular") -> InlineKeyboardMarkup:
         """Keyboard for lesson confirmation notifications"""
-        buttons = [
-            [
+        buttons = []
+        
+        # Only add confirmation buttons for non-trial lessons
+        if lesson_type != "trial":
+            buttons.append([
                 InlineKeyboardButton(text="✅ Урок состоялся", callback_data=f"confirm:lesson:{lesson_id}"),
                 InlineKeyboardButton(text="❌ Урок не состоялся", callback_data=f"cancel:lesson:{lesson_id}")
-            ],
-            [InlineKeyboardButton(text="📝 Детали урока", callback_data=f"lesson:details:{lesson_id}")]
-        ]
+            ])
+        
+        buttons.append([InlineKeyboardButton(text="📝 Детали урока", callback_data=f"lesson:details:{lesson_id}")])
         
         return InlineKeyboardMarkup(inline_keyboard=buttons)

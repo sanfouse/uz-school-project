@@ -1,4 +1,4 @@
-FROM python:3.12.3-slim
+FROM python:3.12-bookworm
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -21,5 +21,3 @@ RUN pip install --no-cache-dir poetry && \
 COPY . /app
 
 CMD ["python3", "main.py"]
-
-EXPOSE 8000

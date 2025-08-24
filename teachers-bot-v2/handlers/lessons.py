@@ -181,7 +181,7 @@ async def callback_lesson_view(callback: CallbackQuery):
         lesson = await api_client.get_lesson(lesson_id)
         
         text = format_lesson_info(lesson)
-        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"])
+        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"], lesson.get("type", "regular"))
         
         await callback.message.edit_text(text, reply_markup=keyboard)
         await callback.answer()
@@ -199,6 +199,14 @@ async def callback_lesson_confirm(callback: CallbackQuery):
     try:
         lesson_id = int(callback.data.split(":")[2])
         
+        # Get lesson details to check type
+        lesson = await api_client.get_lesson(lesson_id)
+        
+        # Skip confirmation for trial lessons
+        if lesson.get("type") == "trial":
+            await callback.answer("ℹ️ Пробные уроки не требуют подтверждения", show_alert=True)
+            return
+        
         # Confirm lesson via API
         await api_client.confirm_lesson(lesson_id)
         
@@ -207,7 +215,7 @@ async def callback_lesson_confirm(callback: CallbackQuery):
         # Refresh lesson view
         lesson = await api_client.get_lesson(lesson_id)
         text = format_lesson_info(lesson)
-        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"])
+        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"], lesson.get("type", "regular"))
         
         await callback.message.edit_text(text, reply_markup=keyboard)
         
@@ -232,7 +240,7 @@ async def callback_lesson_cancel(callback: CallbackQuery):
         # Refresh lesson view
         lesson = await api_client.get_lesson(lesson_id)
         text = format_lesson_info(lesson)
-        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"])
+        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"], lesson.get("type", "regular"))
         
         await callback.message.edit_text(text, reply_markup=keyboard)
         
@@ -405,7 +413,7 @@ async def process_lesson_type(callback: CallbackQuery, state: FSMContext):
             f"📝 <b>Тип:</b> {lesson['type']}"
         )
         
-        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson['id'], lesson['status'])
+        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson['id'], lesson['status'], lesson.get('type', 'regular'))
         await callback.message.edit_text(text, reply_markup=keyboard)
         await callback.answer("✅ Урок создан!")
         
@@ -423,6 +431,14 @@ async def callback_confirm_lesson_notification(callback: CallbackQuery):
     """Handle lesson confirmation from notification"""
     try:
         lesson_id = int(callback.data.split(":")[2])
+        
+        # Get lesson details to check type
+        lesson = await api_client.get_lesson(lesson_id)
+        
+        # Skip confirmation for trial lessons
+        if lesson.get("type") == "trial":
+            await callback.answer("ℹ️ Пробные уроки не требуют подтверждения", show_alert=True)
+            return
         
         # Confirm lesson via API
         await api_client.confirm_lesson(lesson_id)
@@ -535,7 +551,7 @@ async def process_lesson_name_edit(message: Message, state: FSMContext):
         # Show updated lesson
         lesson = await api_client.get_lesson(lesson_id)
         text = format_lesson_info(lesson)
-        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"])
+        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"], lesson.get("type", "regular"))
         
         await message.answer(text, reply_markup=keyboard)
         
@@ -588,7 +604,7 @@ async def process_lesson_price_edit(message: Message, state: FSMContext):
         # Show updated lesson
         lesson = await api_client.get_lesson(lesson_id)
         text = format_lesson_info(lesson)
-        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"])
+        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"], lesson.get("type", "regular"))
         
         await message.answer(text, reply_markup=keyboard)
         
@@ -741,7 +757,7 @@ async def callback_lesson_details(callback: CallbackQuery):
         lesson = await api_client.get_lesson(lesson_id)
         
         text = format_lesson_info(lesson)
-        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"])
+        keyboard = LessonKeyboards.get_lesson_detail_keyboard(lesson_id, lesson["status"], lesson.get("type", "regular"))
         
         await callback.message.edit_text(text, reply_markup=keyboard)
         await callback.answer()

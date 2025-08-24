@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     RABBIT_PASSWORD: str
     RABBIT_HOST: str
     RABBIT_PORT: int
+    RABBIT_QUEUE: str
 
     TINKOFF_TOKEN: str
 

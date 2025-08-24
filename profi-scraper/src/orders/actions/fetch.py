@@ -21,9 +21,6 @@ async def process_orders(page: Page):
         await send_message(f"🔔 У вас есть непрочитанные сообщения: {unviewed_messages}")
     validated_orders = await _validate_orders(orders)
 
-    orders_messages = [order.get_message() for order in validated_orders]
-    await send_messages(orders_messages)
-
     await client.add_viewed_orders(validated_orders)
 
     return validated_orders
