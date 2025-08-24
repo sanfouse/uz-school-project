@@ -56,7 +56,7 @@ class Selector:
         for container in self.containers:
             try:
                 # Безопасно извлекаем href
-                href_element = container.select_one(".SnippetBodyStyles__Container-sc-tnih0-2")
+                href_element = container.select_one('a[class*="SnippetBodyStyles__Container-sc-tnih0-2"]')
                 if not href_element or not href_element.get("href"):
                     continue
                 

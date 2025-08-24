@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+spec:
+  schedule: {{ .Values.cronjob.schedule | quote }}
+  concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronjob.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .Release.Name }}
+            release: {{ .Release.Name }}
+        spec:
+          restartPolicy: {{ .Values.cronjob.restartPolicy }}
+          containers:
+          - name: {{ .Chart.Name }}
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            resources:
+              requests:
+                cpu: {{ .Values.resources.requests.cpu }}
+                memory: {{ .Values.resources.requests.memory }}
+              limits:
+                cpu: {{ .Values.resources.limits.cpu }}
+                memory: {{ .Values.resources.limits.memory }}
+            env:
+            - name: DATABASE_URL
+              value: "postgresql://{{ .Values.secrets.DATABASE_USER }}:{{ .Values.secrets.DATABASE_PASSWORD }}@{{ .Values.secrets.DATABASE_HOST }}:{{ .Values.secrets.DATABASE_PORT }}/{{ .Values.secrets.DATABASE_NAME }}"
+            - name: RABBITMQ_URL
+              value: "amqp://{{ .Values.secrets.RABBITMQ_USER }}:{{ .Values.secrets.RABBITMQ_PASSWORD }}@{{ .Values.secrets.RABBITMQ_HOST }}:{{ .Values.secrets.RABBITMQ_PORT }}/"
+            - name: NOTIFICATION_QUEUE
+              value: {{ .Values.env.NOTIFICATION_QUEUE | quote }}
+            envFrom:
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+          backoffLimit: {{ .Values.cronjob.backoffLimit }}
+

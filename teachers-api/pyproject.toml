@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "teachers-api"
+version = "0.1.0"
+description = ""
+authors = ["sanfit <sanfit@vk.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.116.1"
+pydantic-settings = "^2.10.1"
+faststream = {extras = ["rabbit"], version = "^0.5.48"}
+alembic = "^1.16.4"
+sqlalchemy = "^2.0.43"
+httpx = "^0.28.1"
+psycopg2-binary = "^2.9.10"
+asyncpg = "^0.30.0"
+uvicorn = "^0.35.0"
+apscheduler = "^3.10.4"
+psycopg2 = "^2.9.10"
+greenlet = "^3.2.4"
+pydantic = {extras = ["email"], version = "^2.11.7"}
+loguru = "^0.7.2"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -24,6 +24,18 @@ build:
     context: frontend
     docker:
       dockerfile: Dockerfile
+  - image: aadbccd8-cute-cygnus.registry.twcstorage.ru/teachers-api
+    context: teachers-api
+    docker:
+      dockerfile: Dockerfile
+  - image: aadbccd8-cute-cygnus.registry.twcstorage.ru/teachers-bot-v2
+    context: teachers-bot-v2
+    docker:
+      dockerfile: Dockerfile
+  - image: aadbccd8-cute-cygnus.registry.twcstorage.ru/lesson-checker
+    context: lesson-checker
+    docker:
+      dockerfile: Dockerfile
 
 deploy:
   helm:
@@ -46,5 +58,23 @@ deploy:
       createNamespace: true
       valuesFiles:
         - frontend/.helm/values.yaml
+    - name: lesson-checker
+      chartPath: lesson-checker/.helm
+      namespace: default
+      createNamespace: true
+      valuesFiles:
+        - lesson-checker/.helm/values.yaml
+    - name: teachers-api
+      chartPath: teachers-api/.helm
+      namespace: default
+      createNamespace: true
+      valuesFiles:
+        - teachers-api/.helm/values.yaml
+    - name: teachers-bot-v2
+      chartPath: teachers-bot-v2/.helm
+      namespace: default
+      createNamespace: true
+      valuesFiles:
+        - teachers-bot-v2/.helm/values.yaml
 
 portForward: []

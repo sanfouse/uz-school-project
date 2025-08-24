@@ -1,0 +1,43 @@
+replicaCount: 1
+
+image:
+  repository: aadbccd8-cute-cygnus.registry.twcstorage.ru/lesson-checker
+  pullPolicy: Always
+  tag: "latest"
+
+resources:
+  requests:
+    cpu: "0.1"
+    memory: "128Mi"
+  limits:
+    cpu: "0.2"
+    memory: "256Mi"
+
+# CronJob настройки
+cronjob:
+  schedule: "*/15 * * * *"  # Каждые 15 минут
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  restartPolicy: OnFailure
+  backoffLimit: 3
+
+# Переменные окружения
+env:
+  DATABASE_URL: "postgresql://user:password@postgres:5432/teachers_db"
+  RABBITMQ_URL: "amqp://user:password@rabbitmq:5672/"
+  NOTIFICATION_QUEUE: "lesson_notifications"
+
+# Секреты
+secrets:
+  DATABASE_USER: "user"
+  DATABASE_PASSWORD: "password"
+  DATABASE_HOST: "postgres"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "teachers_db"
+  
+  RABBITMQ_USER: "user"
+  RABBITMQ_PASSWORD: "password"
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"
+

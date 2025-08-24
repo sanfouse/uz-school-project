@@ -1,0 +1,48 @@
+replicaCount: 1
+
+image:
+  repository: aadbccd8-cute-cygnus.registry.twcstorage.ru/teachers-api
+  pullPolicy: Always
+  tag: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: teachers-api.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+env:
+  - name: DATABASE_URL
+    value: "postgresql://user:password@postgres:5432/db"
+  - name: API_HOST
+    value: "0.0.0.0"
+  - name: API_PORT
+    value: "8000"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

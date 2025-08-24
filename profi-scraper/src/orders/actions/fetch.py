@@ -2,7 +2,7 @@ from playwright.async_api import Page
 
 from core.config import settings
 from core.logger import get_logger
-from core.broker import send_messages
+from core.broker import send_messages, send_message
 from core.redis import client
 from src.orders.schema import Order
 from src.orders.services import is_valid_order
@@ -18,7 +18,7 @@ async def process_orders(page: Page):
     unviewed_messages = await page.get_unviewed_messages()
     if unviewed_messages:
         logger.info(f"{settings.profi_login}: {unviewed_messages} unviewed messages")
-        await send_messages(f"🔔 У вас есть непрочитанные сообщения: {unviewed_messages}")
+        await send_message(f"🔔 У вас есть непрочитанные сообщения: {unviewed_messages}")
     validated_orders = await _validate_orders(orders)
 
     orders_messages = [order.get_message() for order in validated_orders]

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: lesson-checker
+description: A Helm chart for lesson checker service
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
