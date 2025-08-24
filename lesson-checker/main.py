@@ -33,13 +33,14 @@ async def get_lessons_needing_confirmation(db_pool: asyncpg.Pool) -> List[dict]:
         l.student_name,
         l.date_time,
         l.price,
+        l.type,
         t.full_name as teacher_name,
         t.tg_id as teacher_tg_id,
         t.email as teacher_email
     FROM lessons l
     JOIN teachers t ON l.teacher_id = t.id
     WHERE l.date_time <= $1
-    AND l.status = 'planned'
+    AND l.status = 'planned' and l.type = 'regular'
     """
     
     async with db_pool.acquire() as conn:

@@ -22,8 +22,8 @@ async def callback_register_start(callback: CallbackQuery):
         "Для работы с ботом необходимо пройти быструю регистрацию.\n\n"
         "Мы соберем основную информацию:\n"
         "• Ваше имя\n"
-        "• Телефон (необязательно)\n"
-        "• Email (необязательно)\n"
+        "• Телефон\n"
+        "• Email\n"
         "• Банковские реквизиты для выплат\n\n"
         "Готовы начать?"
     )
@@ -89,12 +89,10 @@ async def process_name(message: Message, state: FSMContext):
     text = (
         "📞 <b>Шаг 2 из 4</b>\n\n"
         "Введите ваш номер телефона:\n\n"
-        "<i>Например: +7 999 123-45-67</i>\n\n"
-        "Или нажмите «Пропустить» если не хотите указывать."
+        "<i>Например: +7 999 123-45-67</i>"
     )
     
-    keyboard = RegistrationKeyboards.get_skip_optional()
-    await message.answer(text, reply_markup=keyboard)
+    await message.answer(text)
 
 
 @router.message(RegistrationStates.waiting_for_phone)
@@ -110,11 +108,6 @@ async def process_phone(message: Message, state: FSMContext):
     await _next_step_email(message, state)
 
 
-@router.callback_query(F.data == "register:skip", RegistrationStates.waiting_for_phone)
-async def skip_phone(callback: CallbackQuery, state: FSMContext):
-    """Skip phone input"""
-    await _next_step_email(callback.message, state)
-    await callback.answer()
 
 
 async def _next_step_email(message: Message, state: FSMContext):
@@ -124,12 +117,10 @@ async def _next_step_email(message: Message, state: FSMContext):
     text = (
         "📧 <b>Шаг 3 из 4</b>\n\n"
         "Введите ваш email:\n\n"
-        "<i>Например: teacher@example.com</i>\n\n"
-        "Или нажмите «Пропустить» если не хотите указывать."
+        "<i>Например: teacher@example.com</i>"
     )
     
-    keyboard = RegistrationKeyboards.get_skip_optional()
-    await message.edit_text(text, reply_markup=keyboard) if hasattr(message, 'edit_text') else await message.answer(text, reply_markup=keyboard)
+    await message.answer(text)
 
 
 @router.message(RegistrationStates.waiting_for_email)
@@ -145,11 +136,6 @@ async def process_email(message: Message, state: FSMContext):
     await _next_step_bank(message, state)
 
 
-@router.callback_query(F.data == "register:skip", RegistrationStates.waiting_for_email)
-async def skip_email(callback: CallbackQuery, state: FSMContext):
-    """Skip email input"""
-    await _next_step_bank(callback.message, state)
-    await callback.answer()
 
 
 async def _next_step_bank(message: Message, state: FSMContext):
@@ -163,7 +149,7 @@ async def _next_step_bank(message: Message, state: FSMContext):
         "⚠️ <b>Внимание:</b> Этот счет будет использоваться для переводов!"
     )
     
-    await message.edit_text(text) if hasattr(message, 'edit_text') else await message.answer(text)
+    await message.answer(text)
 
 
 @router.message(RegistrationStates.waiting_for_bank_account)

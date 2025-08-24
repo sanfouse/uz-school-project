@@ -1,6 +1,4 @@
-import json
-import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 from faststream.rabbit import RabbitBroker
 from loguru import logger
@@ -20,110 +18,86 @@ class NotificationService:
             await self._broker.connect()
         return self._broker
     
-    async def send_notification(self, event_type: str, data: Dict[str, Any], teacher_id: Optional[int] = None):
-        """Send notification to RabbitMQ"""
+    async def send_notification(self, message_text: str, teacher_id: Optional[int] = None):
+        """Send formatted notification message to RabbitMQ"""
         try:
             broker = await self.get_broker()
             
-            message = {
-                "event_type": event_type,
-                "timestamp": datetime.utcnow().isoformat(),
-                "teacher_id": teacher_id,
-                "data": data
-            }
-            
             await broker.publish(
-                json.dumps(message, default=str),
+                message_text,
                 settings.RABBIT_QUEUE
             )
             
-            logger.info(f"Notification sent: {event_type} for teacher {teacher_id}")
+            logger.info(f"Notification sent for teacher {teacher_id}")
             
         except Exception as e:
-            logger.error(f"Failed to send notification {event_type}: {e}")
+            logger.error(f"Failed to send notification: {e}")
     
     async def lesson_created(self, lesson_data: Dict[str, Any], teacher_id: int):
         """Notify about lesson creation"""
-        await self.send_notification(
-            "lesson_created",
-            {
-                "lesson_id": lesson_data.get("id"),
-                "student_name": lesson_data.get("student_name"),
-                "date_time": lesson_data.get("date_time"),
-                "price": lesson_data.get("price"),
-                "type": lesson_data.get("type")
-            },
-            teacher_id
-        )
+        message = f"🎯 <b>Новый урок создан</b>\n\n" \
+                 f"👤 Ученик: {lesson_data.get('student_name')}\n" \
+                 f"📅 Дата и время: {lesson_data.get('date_time')}\n" \
+                 f"💰 Цена: {lesson_data.get('price')} руб\n" \
+                 f"📝 Тип: {lesson_data.get('type')}\n" \
+                 f"🆔 ID урока: {lesson_data.get('id')}"
+        
+        await self.send_notification(message, teacher_id)
     
     async def lesson_confirmed(self, lesson_data: Dict[str, Any], teacher_id: int):
         """Notify about lesson confirmation"""
-        await self.send_notification(
-            "lesson_confirmed",
-            {
-                "lesson_id": lesson_data.get("id"),
-                "student_name": lesson_data.get("student_name"),
-                "date_time": lesson_data.get("date_time"),
-                "price": lesson_data.get("price")
-            },
-            teacher_id
-        )
+        message = f"✅ <b>Урок подтвержден</b>\n\n" \
+                 f"👤 Ученик: {lesson_data.get('student_name')}\n" \
+                 f"📅 Дата и время: {lesson_data.get('date_time')}\n" \
+                 f"💰 Цена: {lesson_data.get('price')} руб\n" \
+                 f"🆔 ID урока: {lesson_data.get('id')}"
+        
+        await self.send_notification(message, teacher_id)
     
     async def lesson_cancelled(self, lesson_data: Dict[str, Any], teacher_id: int):
         """Notify about lesson cancellation"""
-        await self.send_notification(
-            "lesson_cancelled",
-            {
-                "lesson_id": lesson_data.get("id"),
-                "student_name": lesson_data.get("student_name"),
-                "date_time": lesson_data.get("date_time"),
-                "reason": lesson_data.get("reason", "No reason provided")
-            },
-            teacher_id
-        )
+        message = f"❌ <b>Урок отменен</b>\n\n" \
+                 f"👤 Ученик: {lesson_data.get('student_name')}\n" \
+                 f"📅 Дата и время: {lesson_data.get('date_time')}\n" \
+                 f"📝 Причина: {lesson_data.get('reason', 'Причина не указана')}\n" \
+                 f"🆔 ID урока: {lesson_data.get('id')}"
+        
+        await self.send_notification(message, teacher_id)
     
     async def lesson_updated(self, lesson_data: Dict[str, Any], teacher_id: int, changes: Dict[str, Any]):
         """Notify about lesson update"""
-        await self.send_notification(
-            "lesson_updated",
-            {
-                "lesson_id": lesson_data.get("id"),
-                "student_name": lesson_data.get("student_name"),
-                "changes": changes
-            },
-            teacher_id
-        )
+        changes_text = "\n".join([f"• {key}: {value}" for key, value in changes.items()])
+        message = f"✏️ <b>Урок обновлен</b>\n\n" \
+                 f"👤 Ученик: {lesson_data.get('student_name')}\n" \
+                 f"🆔 ID урока: {lesson_data.get('id')}\n\n" \
+                 f"📝 <b>Изменения:</b>\n{changes_text}"
+        
+        await self.send_notification(message, teacher_id)
     
     async def invoice_paid(self, invoice_data: Dict[str, Any], teacher_id: int):
         """Notify about invoice payment"""
-        await self.send_notification(
-            "invoice_paid",
-            {
-                "invoice_id": invoice_data.get("id"),
-                "lesson_id": invoice_data.get("lesson_id"),
-                "amount": invoice_data.get("amount"),
-                "payment_date": datetime.utcnow().isoformat()
-            },
-            teacher_id
-        )
+        message = f"💸 <b>Счет оплачен</b>\n\n" \
+                 f"🧾 ID счета: {invoice_data.get('id')}\n" \
+                 f"📚 ID урока: {invoice_data.get('lesson_id')}\n" \
+                 f"💰 Сумма: {invoice_data.get('amount')} руб\n" \
+                 f"📅 Дата оплаты: {datetime.now(timezone.utc).strftime('%d.%m.%Y %H:%M')}"
+        
+        await self.send_notification(message, teacher_id)
     
     async def teacher_registered(self, teacher_data: Dict[str, Any]):
         """Notify about teacher registration"""
-        await self.send_notification(
-            "teacher_registered",
-            {
-                "teacher_id": teacher_data.get("id"),
-                "full_name": teacher_data.get("full_name"),
-                "email": teacher_data.get("email"),
-                "tg_id": teacher_data.get("tg_id")
-            },
-            teacher_data.get("id")
-        )
+        message = f"🎉 <b>Новый преподаватель зарегистрирован</b>\n\n" \
+                 f"👨‍🏫 ФИО: {teacher_data.get('full_name')}\n" \
+                 f"📧 Email: {teacher_data.get('email')}\n" \
+                 f"🆔 Telegram ID: {teacher_data.get('tg_id')}\n" \
+                 f"🆔 ID преподавателя: {teacher_data.get('id')}"
+        
+        await self.send_notification(message, teacher_data.get('id'))
     
     async def close(self):
         """Close broker connection"""
         if self._broker:
-            await self._broker.close()
+            await self._broker.stop()
 
 
 # Global notification service instance
